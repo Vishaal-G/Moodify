@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Mood Song Generator",
+  "version": "1.0",
+  "description": "Generates music recommendations based on your mood.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8001/"
+  ],
+  "action": {
+    "default_title": "Mood Song Generator",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

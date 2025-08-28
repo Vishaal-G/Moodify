@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Song Generator</title>
+    <!-- Use Inter font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define a clean, modern color palette and font using CSS variables */
+        :root {
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --subtle-text: #64748b;
+            --primary-accent: #3b82f6;
+            --input-bg: #f8fafc;
+            --border-color: #cbd5e1;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --transition-speed: 0.3s;
+        }
+
+        /* Base styles for the body - optimized for popup */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            width: 400px;
+            min-height: 600px;
+            max-height: 700px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* Main container styling - optimized for popup */
+        .main-container {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            margin: 0.5rem;
+        }
+
+        /* Title and subtitle styling - smaller for popup */
+        .title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--subtle-text);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Form and input field styling */
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            transition: border-color var(--transition-speed);
+            font-size: 0.875rem;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+        }
+        
+        /* Button styling with a vibrant primary accent color */
+        .primary-btn {
+            background-color: var(--primary-accent);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px; /* Pill shape */
+            font-weight: 700;
+            transition: background-color var(--transition-speed), transform var(--transition-speed);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            font-size: 0.875rem;
+        }
+
+        .primary-btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .primary-btn:disabled {
+            background-color: #93c5fd;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Loading spinner */
+        .btn-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            width: 1rem;
+            height: 1rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Status text styles */
+        .status-text {
+            text-align: center;
+            font-weight: 600;
+            margin-top: 0.75rem;
+            font-size: 0.75rem;
+            transition: color var(--transition-speed);
+        }
+
+        .status-text.neutral {
+            color: var(--subtle-text);
+        }
+
+        .status-text.success {
+            color: var(--primary-accent);
+        }
+
+        .status-text.error {
+            color: #ef4444;
+        }
+
+        /* Card and list styling - optimized for popup */
+        #tracksList {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: 1fr;
+            margin-top: 1.5rem;
+        }
+
+        .track-card {
+            background-color: var(--card-bg);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: row;
+            border: 1px solid var(--border-color);
+            max-height: 80px;
+        }
+        
+        .track-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .track-cover {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        
+        .track-info {
+            padding: 0.75rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0; /* Allow text truncation */
+        }
+
+        .track-title {
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: var(--text-color);
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist {
+            font-size: 0.75rem;
+            color: var(--subtle-text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-album {
+            font-size: 0.625rem;
+            color: var(--subtle-text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 0.125rem;
+        }
+
+        /* Results section */
+        #resultsSection {
+            margin-top: 1.5rem;
+        }
+
+        #resultTitle {
+            font-size: 1rem;
+            text-align: center;
+            color: var(--text-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        /* Empty state */
+        #emptyState {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--input-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--subtle-text);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1 class="title">Moodify</h1>
+        <p class="subtitle">Personalized music recommendations</p>
+
+        <!-- Input Form -->
+        <form id="generatorForm" class="flex flex-col space-y-3">
+            <div>
+                <label for="moodSelect" class="form-label">How are you feeling?</label>
+                <select id="moodSelect" class="form-select">
+                    <option value="joy">😊 Joyful</option>
+                    <option value="sadness">😢 Sad</option>
+                    <option value="anger">😠 Angry</option>
+                    <option value="fear">😨 Fearful</option>
+                    <option value="disgust">🤢 Disgusted</option>
+                    <option value="surprise">😲 Surprised</option>
+                </select>
+            </div>
+            <div>
+                <label for="genreInput" class="form-label">Genre preference (optional):</label>
+                <input type="text" id="genreInput" name="genre" class="form-input" placeholder="e.g., pop, jazz, rock">
+            </div>
+            <div>
+                <label for="limitSelect" class="form-label">Number of songs:</label>
+                <select id="limitSelect" class="form-select">
+                    <option value="3" selected>3 songs</option>
+                    <option value="5">5 songs</option>
+                    <option value="10">10 songs</option>
+                </select>
+            </div>
+            <div class="flex justify-center mt-4">
+                <button type="submit" id="generateBtn" class="primary-btn flex items-center justify-center space-x-2 w-full">
+                    <span class="btn-text">Generate Songs</span>
+                    <div class="btn-spinner hidden"></div>
+                </button>
+            </div>
+            <p id="statusText" class="status-text neutral"></p>
+        </form>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="hidden">
+            <h2 id="resultTitle" class="text-lg text-center text-gray-800 font-semibold mb-4"></h2>
+            <div id="tracksList">
+                <!-- Tracks will be inserted here -->
+            </div>
+        </section>
+
+        <!-- Empty State Message -->
+        <div id="emptyState" class="hidden">
+            <p class="text-subtle-text italic text-sm">No songs found. Please try a different selection.</p>
+        </div>
+    </div>
+
+    <script>
+        // Set the base URL for the FastAPI backend. Update this if your backend is hosted elsewhere.
+        const BASE_URL = 'http://localhost:8000';
+
+        // Get references to all necessary DOM elements
+        const form = document.getElementById('generatorForm');
+        const moodSelect = document.getElementById('moodSelect');
+        const genreInput = document.getElementById('genreInput');
+        const limitSelect = document.getElementById('limitSelect');
+        const generateBtn = document.getElementById('generateBtn');
+        const statusText = document.getElementById('statusText');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultTitle = document.getElementById('resultTitle');
+        const tracksList = document.getElementById('tracksList');
+        const emptyState = document.getElementById('emptyState');
+
+        // Helper functions for UI manipulation
+        function show(el) { el.classList.remove('hidden'); }
+        function hide(el) { el.classList.add('hidden'); }
+        function clear(el) { el.innerHTML = ''; }
+
+        // Set the loading state of the button and UI
+        function setLoadingState(loading) {
+            generateBtn.disabled = loading;
+            const btnText = generateBtn.querySelector(".btn-text");
+            const spinner = generateBtn.querySelector(".btn-spinner");
+            if (btnText) btnText.textContent = loading ? "Generating..." : "Generate Songs";
+            if (spinner) spinner.classList.toggle("hidden", !loading);
+
+            if (loading) {
+                hide(resultsSection);
+                hide(emptyState);
+                updateStatus("Analyzing your mood and finding perfect songs...", "neutral");
+            } else {
+                updateStatus("", "neutral");
+            }
+        }
+
+        // Update the status message
+        function updateStatus(message, type = "neutral") {
+            if (!statusText) return;
+            statusText.textContent = message;
+            statusText.className = `status-text ${type}`;
+        }
+        
+        // Render the song cards with better error handling
+        function renderTracks(tracks, emotion, confidence) {
+            clear(tracksList);
+            if (!tracks || tracks.length === 0) {
+                hide(resultsSection);
+                show(emptyState);
+                updateStatus("No songs found. Try adjusting your mood or genre selection.", "error");
+                return;
+            }
+
+            // Show emotion confidence
+            const confidencePercent = Math.round(confidence * 100);
+            resultTitle.innerHTML = `
+                Songs for your <span class="text-blue-600">'${emotion}'</span> mood 
+                <span class="text-sm text-gray-500">(${confidencePercent}% confidence)</span>
+            `;
+
+            tracks.forEach(track => {
+                const card = document.createElement('div');
+                card.className = 'track-card';
+                
+                // Handle missing cover art gracefully
+                const coverUrl = track.cover_art || 'https://placehold.co/80x80/e2e8f0/64748b?text=No+Cover';
+                
+                card.innerHTML = `
+                    <img src="${coverUrl}"
+                         class="track-cover"
+                         alt="${track.title} album cover"
+                         onerror="this.onerror=null;this.src='https://placehold.co/80x80/e2e8f0/64748b?text=No+Cover';"
+                    >
+                    <div class="track-info">
+                        <h3 class="track-title" title="${track.title}">${track.title}</h3>
+                        <p class="track-artist" title="${track.artist}">${track.artist}</p>
+                        ${track.album ? `<p class="track-album" title="${track.album}">${track.album}</p>` : ''}
+                    </div>
+                `;
+                
+                // Add click handler to open Spotify
+                if (track.spotify_url) {
+                    card.addEventListener('click', () => {
+                        window.open(track.spotify_url, '_blank');
+                    });
+                    card.style.cursor = 'pointer';
+                }
+                
+                tracksList.appendChild(card);
+            });
+            
+            show(resultsSection);
+            hide(emptyState);
+        }
+
+        // Test backend connection
+        async function testBackendConnection() {
+            try {
+                const response = await fetch(`${BASE_URL}/test`);
+                if (response.ok) {
+                    console.log('Backend connection successful');
+                    return true;
+                }
+            } catch (error) {
+                console.error('Backend connection failed:', error);
+                return false;
+            }
+            return false;
+        }
+
+        // Handle the form submission with improved error handling
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setLoadingState(true);
+
+            try {
+                // Test backend connection first
+                const isConnected = await testBackendConnection();
+                if (!isConnected) {
+                    throw new Error('Cannot connect to backend server. Please ensure the server is running on localhost:8000');
+                }
+
+                const mood = moodSelect.value;
+                const genre = genreInput.value.trim();
+                const limit = parseInt(limitSelect.value);
+
+                // Validate inputs
+                if (!mood) {
+                    throw new Error('Please select a mood');
+                }
+
+                if (limit < 1 || limit > 50) {
+                    throw new Error('Number of songs must be between 1 and 50');
+                }
+
+                updateStatus(`Analyzing "${mood}" mood...`, "neutral");
+
+                const response = await fetch(`${BASE_URL}/predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: mood,
+                        genre: genre || undefined, // Only send if not empty
+                    }),
+                });
+
+                if (!response.ok) {
+                    let errorMessage = 'An error occurred while generating songs';
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.detail || errorMessage;
+                    } catch (parseError) {
+                        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const data = await response.json();
+                
+                // Validate response data
+                if (!data.emotion || !data.tracks) {
+                    throw new Error('Invalid response from server');
+                }
+
+                renderTracks(data.tracks, data.emotion, data.confidence);
+                updateStatus(`Successfully generated ${data.tracks.length} songs for your '${data.emotion}' mood!`, "success");
+
+            } catch (error) {
+                console.error('Error:', error);
+                updateStatus(`Error: ${error.message}`, "error");
+                hide(resultsSection);
+                show(emptyState);
+            } finally {
+                setLoadingState(false);
+            }
+        });
+
+        // Initialize the extension
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Test backend connection on startup
+            const isConnected = await testBackendConnection();
+            if (!isConnected) {
+                updateStatus('Warning: Backend server not connected. Please start the server first.', "error");
+            }
+        });
+    </script>
+</body>
+</html>
