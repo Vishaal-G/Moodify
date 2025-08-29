@@ -1,0 +1,31 @@
+# Environment variables and secrets
+.env
+.env.local
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+npm-debug.log*
+
+# Node.js dependencies (if you have a frontend)
+node_modules/
+
+# Ignore uploaded files from Canvas
+uploaded:*

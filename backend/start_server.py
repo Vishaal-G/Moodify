@@ -1,21 +1,32 @@
 import os
 import subprocess
+from dotenv import load_dotenv
 
 # ====================================================================
-# CRITICAL: PLACE YOUR SPOTIFY CREDENTIALS HERE
+# Load environment variables from .env file
 # ====================================================================
-# These will be set as environment variables for the server process.
-CLIENT_ID = "8dd72a61559d4d06835097ba58c716b3"
-CLIENT_SECRET = "bb57676e5c9347dba1d99e440dd173ba"
+# The `dotenv` library will automatically load the key-value pairs from
+# the .env file into the system's environment variables.
+load_dotenv()
 
-# Check for placeholders before starting the server
-if CLIENT_ID == "<YOUR_SPOTIFY_CLIENT_ID>" or CLIENT_SECRET == "<YOUR_SPOTIFY_CLIENT_SECRET>":
-    print("ERROR: Please replace the placeholder values in start_server.py with your Spotify credentials.")
+# ====================================================================
+# CRITICAL: DO NOT PLACE YOUR SPOTIFY CREDENTIALS HERE
+# ====================================================================
+# Instead, they are now loaded from the .env file.
+# We retrieve them using `os.getenv()`.
+CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
+CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
+
+# ====================================================================
+# Check for credentials before starting the server
+# ====================================================================
+if not CLIENT_ID or not CLIENT_SECRET:
+    print("ERROR: Spotify credentials not found.")
+    print("Please ensure you have created a '.env' file in the root directory")
+    print("and set the SPOTIPY_CLIENT_ID and SPOTIPY_CLIENT_SECRET variables.")
     exit()
 
-# Set the environment variables
-os.environ['SPOTIPY_CLIENT_ID'] = CLIENT_ID
-os.environ['SPOTIPY_CLIENT_SECRET'] = CLIENT_SECRET
+# Set the port for Uvicorn
 os.environ['UVICORN_PORT'] = "8000"
 
 print("Starting server with Uvicorn...")
@@ -31,12 +42,13 @@ try:
             "--port", os.environ.get("UVICORN_PORT"),
             "--reload",
         ],
-        env=os.environ,
+        env=os.environ.copy()
     )
+
     process.wait()
 
-except FileNotFoundError:
-    print("ERROR: Uvicorn not found. Please make sure it is installed.")
-    print("You can install it by running 'pip install uvicorn'.")
+except KeyboardInterrupt:
+    print("\nServer process terminated by user.")
 except Exception as e:
-    print(f"An unexpected error occurred: {e}")
+    print(f"An error occurred: {e}")
+
