@@ -1,41 +1,66 @@
-# Environment variables and secrets
-.env
-.env.local
-config.json
-settings.py
-
-# Python artifacts
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Virtual environments
-venv/
-.venv/
-env/
-.env/
-
-# IDE and OS files
-.vscode/
-.idea/
+# ---------------------
+# OS files
+# ---------------------
 .DS_Store
 Thumbs.db
 
-# Logs and temporary files
-*.log
-npm-debug.log*
-
-# Node.js dependencies (if you have a frontend)
+# ---------------------
+# Dependency folders
+# ---------------------
 node_modules/
+venv/
+.env/
+*.env
 
-# Ignore uploaded files from Canvas
-uploaded:*
+# ---------------------
+# Python cache
+# ---------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
 
-# Ignore cache + scripts
+# ---------------------
+# Node/JS cache
+# ---------------------
+.npm/
+.yarn/
+.next/
+dist/
+build/
+
+# ---------------------
+# Generic cache (covers frontend/backend)
+# ---------------------
 .cache/
 **/.cache/
+backend/.cache/
+frontend/.cache/
+
+# ---------------------
+# Logs & temp files
+# ---------------------
+*.log
+*.tmp
+
+# ---------------------
+# Secrets & config
+# ---------------------
+secrets.json
+*.pem
+*.key
+*.crt
+*.db
+
+# ---------------------
+# Scripts you don’t want in repo
+# ---------------------
 server.bat
 
-
-
+# ---------------------
+# IDE/editor settings
+# ---------------------
+.vscode/
+.idea/
+*.iml
