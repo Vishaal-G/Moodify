@@ -1,6 +1,8 @@
 # Environment variables and secrets
 .env
 .env.local
+config.json
+settings.py
 
 # Python artifacts
 __pycache__/
@@ -29,3 +31,11 @@ node_modules/
 
 # Ignore uploaded files from Canvas
 uploaded:*
+
+# Ignore cache + scripts
+.cache/
+**/.cache/
+server.bat
+
+
+
